@@ -35,14 +35,14 @@ class Nodo:
 
     #acciones en caso de pasar por un hidrante
     def paso_hidrante(self, x, y):
-        if self.cubeta1 or self.cubeta2 and self.matriz[x][y] == 6:
+        if (self.cubeta1 or self.cubeta2 )and self.matriz[x][y] == 6:
             return True
         else:
             return self.hidrante
 
     #acciones en caso de pasar por fuego
     def paso_fuego(self, x, y):
-        if self.hidrante and self.matriz[x][y] == 2:
+        if self.hidrante==True and self.matriz[x][y] == 2:
             return self.fuego_restante - 1
         else:
             return self.fuego_restante
@@ -70,13 +70,27 @@ class Nodo:
 
             x, y = self.posicion[0] + dx, self.posicion[1] + dy
 
-            # Verificar si el movimiento es válido dentro de la matriz
+            # Verificar si el movimiento es válido dentro de la matriz  (este en los limites, no sea pared y no sea igual al padre)
             if self.verificar_limites(x,y) and self.matriz[x][y] != 1 and self.verificar_padre([x,y]):
                
                 # Copia la matriz a una nueva
-                nueva_matriz = [fila[:] for fila in self.matriz]  
+                nueva_matriz = [fila[:] for fila in self.matriz] 
+
+
+
+                if self.nodo_padre is None:
+                    nueva_matriz[self.posicion[0]][self.posicion[1]] = 0
+                else:
+                   if self.nodo_padre.matriz[self.posicion[0]][self.posicion[1]] ==2 and not self.hidrante:
+                       nueva_matriz[self.posicion[0]][self.posicion[1]] = 2
+                   else:
+                       nueva_matriz[self.posicion[0]][self.posicion[1]] = 0
+                
                 # Borrar la posición actual
-                nueva_matriz[self.posicion[0]][self.posicion[1]] = 0 
+                
+
+
+
                 # Mover al personaje a la nueva posición
                 nueva_matriz[x][y] = 5  
 
@@ -101,7 +115,7 @@ def print_matriz(matriz):
             print(fila)
         
 
-    
+# Imprime los posibles movimientos  
 def print_movimientos(movimientos_posibles):
     for movimiento in movimientos_posibles:
         for fila in movimiento.matriz:
@@ -130,6 +144,16 @@ def find_goals(matriz):
     return goals
 
 
+def aplanar_lista(arr):
+    resultado = []
+    for elemento in arr:
+        if isinstance(elemento, list):
+            resultado.extend(aplanar_lista(elemento))
+        else:
+            resultado.append(elemento)
+    return resultado
+
+
 
 def busqueda_preferente_por_amplitud(matriz):
 
@@ -143,12 +167,12 @@ def busqueda_preferente_por_amplitud(matriz):
     while True:
 
         if not queue:
-            return "no, te falla"
+            return "no, te falla", 
         
         current_node = queue.pop(0)
 
         if current_node.esMeta():
-            return "no te falla"    
+            return ["no te falla", current_node]
         
         children = current_node.expandir()
         queue.append(children)
@@ -179,31 +203,52 @@ matriz1 = [
 
 matriz2 = [
 [2, 0, 0, 1, 0],
-[0, 1, 0, 0, 0],
-[0, 0, 2, 0, 2],
+[0, 1, 6, 0, 0],
+[0, 0, 0, 0, 0],
 [0, 1, 1, 0, 0],
-[0, 0, 0, 5, 0]
+[0, 0, 5, 2, 3]
 ]
 
+def imprimir_camino(resultado):
+    respuesta = resultado[0]
+    nodo = resultado[1]
+    if respuesta=="no te falla":
+        camino = []
+        
+        while nodo:
+            camino.append(nodo.matriz)
+            nodo = nodo.nodo_padre
+        camino.reverse()
+
+        return camino
+    else:
+        print(respuesta)
 
 
-def aplanar_lista(arr):
-    resultado = []
-    for elemento in arr:
-        if isinstance(elemento, list):
-            resultado.extend(aplanar_lista(elemento))
-        else:
-            resultado.append(elemento)
-    return resultado
 
-
-hola = busqueda_preferente_por_amplitud(matriz1)
-
+hola = busqueda_preferente_por_amplitud(matriz2)
 print(hola)
 
-#print_movimientos(hola)
+yeison = imprimir_camino(hola)
+
+for matriz in yeison:
+    print_matriz(matriz)
+    print("--")
+
 
 """
+
+nodoinicial =Nodo(matriz2, find_agent(matriz2))
+movimientos_p =nodoinicial.expandir()
+print_movimientos(movimientos_p)
+print(movimientos_p[1].cubeta1)
+
+g=movimientos_p[1].expandir()
+print_movimientos(g)
+print(g[1].cubeta1)
+print(g[1].hidrante)
+
+
 
 nodoinicial =Nodo(matriz1, find_agent(matriz1))
 movimientos_p =nodoinicial.expandir()

@@ -1,12 +1,15 @@
 class Nodo:
 
     #constructor
-    def __init__(self, matriz, posicion, nodo_padre = None):
+    def __init__(self, matriz, posicion, nodo_padre = None, fuego_restante = 2, cubeta1 = False, cubeta2 = False, hidrante = False):
         self.matriz = matriz
         self.posicion = posicion
         self.nodo_padre = nodo_padre
-        self.profundidad = 0
-        self.fuego_restante  = 2
+        self.fuego_restante  = fuego_restante
+        self.cubeta1 = cubeta1
+        self.cubeta2 = cubeta2
+        self.hidrante = hidrante
+        self.profundidad = 0 if nodo_padre is None else nodo_padre.profundidad + 1
 
 
     #verifica si apago todas las llamas
@@ -14,7 +17,38 @@ class Nodo:
         return self.fuego_restante == 0
     
     
-    #verifica si el movimiento que le entregan es igual a la del padre)
+    #acciones en caso de pasar por la cubet de 1 litro
+    def paso_cubeta1(self, x, y):
+        if self.cubeta2 == False and self.matriz[x][y] == 3:
+            return True
+        else:
+            return self.cubeta1
+
+    
+    #acciones en caso de pasar por la cubetde 2 litros
+    def paso_cubeta2(self, x, y):
+        if self.cubeta1 == False and self.matriz[x][y] == 4:
+            return True
+        else:
+            return self.cubeta2
+
+
+    #acciones en caso de pasar por un hidrante
+    def paso_hidrante(self, x, y):
+        if self.cubeta1 or self.cubeta2 and self.matriz[x][y] == 6:
+            return True
+        else:
+            return self.hidrante
+
+    #acciones en caso de pasar por fuego
+    def paso_fuego(self, x, y):
+        if self.hidrante and self.matriz[x][y] == 2:
+            return self.fuego_restante - 1
+        else:
+            return self.fuego_restante
+
+ 
+    #verifica si el movimiento que le entregan es igual a la del padre
     def verificar_padre(self, posicion):
         if self.nodo_padre:
             return  not posicion == self.nodo_padre.posicion
@@ -47,7 +81,15 @@ class Nodo:
                 nueva_matriz[x][y] = 5  
 
                 # Crea y guarda el nodo hijo en un array
-                nuevo_nodo = Nodo(nueva_matriz, [x, y], self)
+                nuevo_nodo = Nodo(
+                    nueva_matriz, 
+                    [x, y], 
+                    self, 
+                    self.paso_fuego(x,y),
+                    self.paso_cubeta1(x,y),
+                    self.paso_cubeta2(x,y),
+                    self.paso_hidrante(x,y),
+                )
                 movimientos.append(nuevo_nodo)
 
         return movimientos
@@ -98,7 +140,7 @@ def busqueda_preferente_por_amplitud(matriz):
     queue = []
     queue.append(Nodo(matriz, initial_position, None))
 
-    while (x != 50):
+    while True:
 
         if not queue:
             return "no, te falla"
@@ -127,6 +169,23 @@ matriz = [
 [0, 0, 5, 0, 0]
 ]
 
+matriz1 = [
+[2, 0, 0, 1, 0],
+[0, 1, 0, 0, 0],
+[0, 0, 2, 0, 2],
+[0, 1, 1, 0, 2],
+[0, 0, 5, 3, 6]
+]
+
+matriz2 = [
+[2, 0, 0, 1, 0],
+[0, 1, 0, 0, 0],
+[0, 0, 2, 0, 2],
+[0, 1, 1, 0, 0],
+[0, 0, 0, 5, 0]
+]
+
+
 
 def aplanar_lista(arr):
     resultado = []
@@ -138,20 +197,38 @@ def aplanar_lista(arr):
     return resultado
 
 
+hola = busqueda_preferente_por_amplitud(matriz1)
 
-hola = busqueda_preferente_por_amplitud(matriz)
 print(hola)
 
+#print_movimientos(hola)
+
+"""
+
+nodoinicial =Nodo(matriz1, find_agent(matriz1))
+movimientos_p =nodoinicial.expandir()
+print_movimientos(movimientos_p)
+print(movimientos_p[1].cubeta1)
 
 
+g=movimientos_p[1].expandir()
+print_movimientos(g)
+print(g[1].cubeta1)
+print(g[1].hidrante)
 
+h=g[0].expandir()
+print_movimientos(h)
+print(h[0].cubeta1)
+print(h[0].hidrante)
+print(h[0].fuego_restante)
 
-print_movimientos(hola)
+i=h[0].expandir()
+print_movimientos(i)
+print(i[1].cubeta1)
+print(i[1].hidrante)
+print(i[1].fuego_restante)
+print(i[1].esMeta())
+print(i[1].profundidad)
 
-
-
-
-
-
-
+"""
 

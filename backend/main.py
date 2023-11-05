@@ -3,8 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Annotated
 
 
-import Amplitud 
-import Costo
+import amplitud 
+import costo
+import  profundidad
 
 app = FastAPI()
 
@@ -60,8 +61,9 @@ async def upload_file(file: UploadFile = File(...)):
     matrix = read_matrix(content)
 
 
-    #result = Amplitud.busqueda_preferente_por_amplitud(matrix)
-    result = Costo.busqueda_de_costo_uniforme(matrix)
+    #result = amplitud.busqueda_preferente_por_amplitud(matrix)
+    #result = costo.busqueda_de_costo_uniforme(matrix)
+    result = profundidad.busqueda_preferente_por_profundidad(matrix)
 
     response = find_path(result)
 

@@ -89,6 +89,7 @@ class Nodo:
     # param: self.Object ->  List<Object>
     # Retorna los  nodos con los posibles Movimientos
     def expandir(self):
+        
         movimientos = []
 
         # Posibles movimientos: izquierda, derecha, arriba, abajo,
@@ -142,6 +143,7 @@ class Nodo:
                     hidrante,
                     self.calculo_costo(self.costo, self.paso_cubeta1, self.paso_cubeta2, hidrante, self.paso_fuego(x,y))
                 )
+
                 movimientos.append(nuevo_nodo)
 
         return movimientos

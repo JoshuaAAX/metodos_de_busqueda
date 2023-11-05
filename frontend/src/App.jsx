@@ -35,10 +35,15 @@ function App() {
   const [miValor, setMiValor] = useState('');
   
  
+  function handleClickRun() {
+    setClickRun(true);
+    
+  }
+
   useEffect(()  => {
     if(clickRun) {
       console.log("entre al run")
-      let x = 1
+      let x = 0
       const intervalId = setInterval(() => {
         if (x >= selectedFile.length) {
           setClickRun(false)
@@ -47,7 +52,7 @@ function App() {
         }
         setMap(selectedFile[x].matrix)
         x=x+1
-      }, 1000);
+      }, 500);
 
       return () => clearInterval(intervalId);
     }
@@ -55,14 +60,33 @@ function App() {
   }, [clickRun]);
 
 
-  function handleClickRun() {
-    setClickRun(true);
-    
+  //Cuando el boton es presionado  click al input
+  function handleFileButton() {
+    fileInputRef.current.click();
   }
 
   //maneja el input para que guarde el archivo y lo envie
   function handleFileSelected(e) {
+
+    
     const file = e.target.files[0];
+
+    console.log(file)
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+        const content = event.target.result;
+        const lines = content.trim().split(/\n/).map(row => row.split(/\s/))
+        const matriz = lines.map(row => row.map(bit => parseInt(bit)));
+
+        setMap(matriz)
+        console.log(matriz);
+    };
+
+    reader.readAsText(file);
+
+
+    
     if(file) {
       
       const formData = new FormData
@@ -77,10 +101,9 @@ function App() {
 
      .then(data => {
          
-         setMap(data.arrays[0].matrix);
+         //setMap(data.arrays[1].matrix);
         //console.log(data.arrays[0].matrix)
          setSelectedFile(data.arrays)
-   
 
       })
 
@@ -92,12 +115,11 @@ function App() {
 
 
     }
+    
   }
 
-  //Cuando el boton es presionado  click al input
-  function handleFileButton() {
-    fileInputRef.current.click();
-  }
+  
+
 
   return (
       <Center h='100%'>

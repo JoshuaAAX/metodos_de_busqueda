@@ -1,15 +1,10 @@
+
+
+
 class Nodo:
 
     #constructor
-    def __init__(
-            self, matriz, 
-            posicion, 
-            nodo_padre = None, 
-            fuego_restante = 2, 
-            cubeta1 = False, 
-            cubeta2 = False, 
-            hidrante = False):
-        
+    def __init__(self, matriz, posicion, nodo_padre = None, fuego_restante = 2, cubeta1 = False, cubeta2 = False, hidrante = False):
         self.matriz = matriz
         self.posicion = posicion
         self.nodo_padre = nodo_padre
@@ -20,12 +15,12 @@ class Nodo:
         self.profundidad = 0 if nodo_padre is None else nodo_padre.profundidad + 1
 
 
-    #verifica si apago todas las llamas
+    # Verifica si apago todas las llamas
     def esMeta(self):
         return self.fuego_restante == 0
     
     
-    #acciones en caso de pasar por la cubet de 1 litro
+    # Acciones en caso de pasar por la cubeta de 1 litro
     def paso_cubeta1(self, x, y):
         if self.cubeta2 == False and self.matriz[x][y] == 3:
             return True
@@ -33,7 +28,7 @@ class Nodo:
             return self.cubeta1
 
     
-    #acciones en caso de pasar por la cubetde 2 litros
+    # Acciones en caso de pasar por la cubeta de 2 litros
     def paso_cubeta2(self, x, y):
         if self.cubeta1 == False and self.matriz[x][y] == 4:
             return True
@@ -41,14 +36,14 @@ class Nodo:
             return self.cubeta2
 
 
-    #acciones en caso de pasar por un hidrante
+    # Acciones en caso de pasar por un hidrante
     def paso_hidrante(self, x, y):
-        if (self.cubeta1 or self.cubeta2 )and self.matriz[x][y] == 6:
+        if (self.cubeta1 or self.cubeta2) and self.matriz[x][y] == 6:
             return True
         else:
             return self.hidrante
 
-    #acciones en caso de pasar por fuego
+    # Acciones en caso de pasar por fuego
     def paso_fuego(self, x, y):
         if self.hidrante==True and self.matriz[x][y] == 2:
             return self.fuego_restante - 1
@@ -56,17 +51,29 @@ class Nodo:
             return self.fuego_restante
 
  
-    #verifica si el movimiento que le entregan es igual a la del padre
+    # Verifica si als propiedades del nodo actual son diferentes al de nodo padre
     def verificar_padre(self, posicion):
         if self.nodo_padre:
-            return  not posicion == self.nodo_padre.posicion
+
+            return   (posicion != self.nodo_padre.posicion 
+                     or  self.nodo_padre.fuego_restante != self.fuego_restante 
+                     or self.hidrante != self.nodo_padre.hidrante 
+                     or self.cubeta1 != self.nodo_padre.cubeta1 
+                     or self.cubeta2 != self.nodo_padre.cubeta2)
         
         return True
     
-    #si la posicion va deacuerdo a los limites de la matriz
+    # Verifica si la posicion va de acuerdo a los limites de la matriz
     def verificar_limites(self, x, y):
         return 0 <= x < len(self.matriz) and 0 <= y < len(self.matriz[0]) 
     
+    # Verifica si a posicion no pasa por un  fuego sin agua
+    def verificar_fuego(self, x,y):
+        if self.matriz[x][y] == 2 and  self.hidrante == False:
+            return False
+        else:
+            return True
+
 
     def expandir(self):
         movimientos = []
@@ -78,23 +85,42 @@ class Nodo:
 
             x, y = self.posicion[0] + dx, self.posicion[1] + dy
 
-            # Verificar si el movimiento es válido dentro de la matriz  (este en los limites, no sea pared, no sea igual al padre)
-            if self.verificar_limites(x,y) and self.matriz[x][y] != 1 and self.verificar_padre([x,y] and not self.hidrante):
+          
+
+            # Verificar si el movimiento es válido dentro de la matriz (este en los limites, no sea pared y no sea igual al padre)
+            if self.verificar_limites(x,y) and self.matriz[x][y] != 1 and self.verificar_padre([x,y]) and self.verificar_fuego(x,y):
+
                
+                
+                # variable global de hidrante - mala practica  corregir
+                hidrante = self.paso_hidrante(x,y)
+
                 # Copia la matriz a una nueva
                 nueva_matriz = [fila[:] for fila in self.matriz] 
 
 
-                # Borrar la posición actual
+                # Borra la posicion del personaje asignar el valor que corresponda a esa casiila
                 if self.nodo_padre is None:
                     nueva_matriz[self.posicion[0]][self.posicion[1]] = 0
-                else:
-                   if self.nodo_padre.matriz[self.posicion[0]][self.posicion[1]] ==2 and not self.hidrante:
-                       nueva_matriz[self.posicion[0]][self.posicion[1]] = 2
-                   else:
-                       nueva_matriz[self.posicion[0]][self.posicion[1]] = 0
-                
 
+                
+                #elif self.nodo_padre.matriz[self.posicion[0]][self.posicion[1]] == 2 and  self.hidrante==True:
+                 #  nueva_matriz[self.posicion[0]][self.posicion[1]] = 0
+
+                #elif self.nodo_padre.matriz[self.posicion[0]][self.posicion[1]] == 2 and  self.hidrante==False:
+                 #  nueva_matriz[self.posicion[0]][self.posicion[1]] = 2
+            
+                elif self.matriz[x][y] == 2 and self.cubeta1 and self.hidrante==True:
+                    nueva_matriz[self.posicion[0]][self.posicion[1]] = 0
+                    hidrante = False
+
+                elif self.nodo_padre.matriz[self.posicion[0]][self.posicion[1]] == 6:
+                    nueva_matriz[self.posicion[0]][self.posicion[1]] = 6
+
+                else:
+                    nueva_matriz[self.posicion[0]][self.posicion[1]] = 0
+                
+        
                 # Mover al personaje a la nueva posición
                 nueva_matriz[x][y] = 5  
 
@@ -106,11 +132,13 @@ class Nodo:
                     self.paso_fuego(x,y),
                     self.paso_cubeta1(x,y),
                     self.paso_cubeta2(x,y),
-                    self.paso_hidrante(x,y),
+                    hidrante,
                 )
                 movimientos.append(nuevo_nodo)
 
         return movimientos
+    
+
 
 
 # Devuelve la posicion del agente
@@ -122,53 +150,58 @@ def find_agent(matriz):
 
 
 
-# Aplana lista
-def aplanar_lista(arr):
-    resultado = []
-    for elemento in arr:
-        if isinstance(elemento, list):
-            resultado.extend(aplanar_lista(elemento))
-        else:
-            resultado.append(elemento)
-    return resultado
-
 
 
 def busqueda_preferente_por_amplitud(matriz):
 
     x =1
     initial_position = find_agent(matriz)
-  
+
     queue = []
     queue.append(Nodo(matriz, initial_position, None))
+    #print_matriz(queue[0].matriz)
 
     while True:
+        #print("=======================")
+        #print("cola antes de expansion")
+        #print_movimientos(queue)
 
         if not queue:
             return "no, te falla", 
         
         current_node = queue.pop(0)
+        #print("nodo a expandir")
+        #print_matriz(current_node.matriz)
 
         if current_node.esMeta():
             return ["no te falla", current_node]
         
         children = current_node.expandir()
-        queue.append(children)
+
+        for child in children:
+            queue.append(child)
+
+        #print("cola despues de expansion")
+        #print_movimientos(queue)
+        #print("=======================")
 
         #aplanar lista
-        queue = aplanar_lista(queue)
+        #queue = aplanar_lista(queue)
         x= x+1
 
-    return  queue
+    return "no hay meta -- se pierde en bucles entonces nunca accede ea esto"
 
 
 # Ejemplo de uso:
+
+matriz0 = [
+[5, 3, 6, 2, 2],
+]
+
 matriz = [
-[2, 0, 0, 1, 0],
-[0, 1, 0, 0, 0],
-[0, 0, 2, 0, 0],
-[0, 1, 1, 0, 0],
-[0, 0, 5, 0, 0]
+[3, 0, 5],
+[0, 1, 6],
+[0, 2, 2]
 ]
 
 matriz1 = [
@@ -180,20 +213,24 @@ matriz1 = [
 ]
 
 matriz2 = [
-[2, 0, 0, 1, 0],
-[0, 1, 6, 0, 0],
-[0, 0, 0, 0, 0],
-[0, 1, 1, 0, 0],
-[0, 0, 5, 2, 3]
+[0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+[0, 1, 0, 1, 1, 0, 1, 1, 1, 1],
+[0, 1, 0, 2, 0, 0, 0, 0, 0, 1],
+[0, 1, 0, 1, 1, 1, 1, 1, 0, 0],
+[5, 0, 0, 6, 0, 0, 0, 1, 0, 1],
+[0, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+[3, 0, 0, 0, 2, 0, 0, 1, 0, 1],
+[0, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+[0, 1, 0, 0, 0, 0, 0, 1, 0, 1],
+[0, 1, 0, 1, 1, 1, 0, 0, 0, 0]
 ]
 
 
-
 """
-hola = busqueda_preferente_por_amplitud(matriz2)
-print(hola)
+result = busqueda_preferente_por_amplitud(matriz2)
+print(result)
 
-yeison = imprimir_camino(hola)
+path = imprimir_camino(result)
 
 for matriz in yeison:
     print_matriz(matriz)
@@ -202,7 +239,9 @@ for matriz in yeison:
 
 
 
-nodoinicial =Nodo(matriz2, find_agent(matriz2))
+
+
+nodoinicial =Nodo(matriz1, find_agent(matriz1))
 movimientos_p =nodoinicial.expandir()
 print_movimientos(movimientos_p)
 print(movimientos_p[1].cubeta1)
@@ -239,5 +278,5 @@ print(i[1].fuego_restante)
 print(i[1].esMeta())
 print(i[1].profundidad)
 
-"""
 
+"""

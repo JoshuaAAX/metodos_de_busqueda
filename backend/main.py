@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Annotated
 
 
-import breadthFirstSearch 
+import Amplitud 
 
 app = FastAPI()
 
@@ -59,7 +59,7 @@ async def upload_file(file: UploadFile = File(...)):
     matrix = read_matrix(content)
 
 
-    result = breadthFirstSearch.busqueda_preferente_por_amplitud(matrix)
+    result = Amplitud.busqueda_preferente_por_amplitud(matrix)
 
     response = find_path(result)
 

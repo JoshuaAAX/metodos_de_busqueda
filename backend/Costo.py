@@ -1,10 +1,7 @@
-
-
-
 class Nodo:
 
     #constructor
-    def __init__(self, matriz, posicion, nodo_padre = None, fuego_restante = 2, cubeta1 = False, cubeta2 = False, hidrante = False):
+    def __init__(self, matriz, posicion, nodo_padre = None, fuego_restante = 2, cubeta1 = False, cubeta2 = False, hidrante = False, costo=0):
         self.matriz = matriz
         self.posicion = posicion
         self.nodo_padre = nodo_padre
@@ -13,6 +10,7 @@ class Nodo:
         self.cubeta2 = cubeta2
         self.hidrante = hidrante
         self.profundidad = 0 if nodo_padre is None else nodo_padre.profundidad + 1
+        self.costo = costo
 
     # param: object -> Boolean
     # Verifica si apago todas las llamas
@@ -42,7 +40,7 @@ class Nodo:
             return True
         else:
             return self.hidrante
-   
+        
     # param: Int, Int -> Int
     # Acciones en caso de pasar por fuego
     def paso_fuego(self, x, y):
@@ -69,13 +67,24 @@ class Nodo:
     def verificar_limites(self, x, y):
         return 0 <= x < len(self.matriz) and 0 <= y < len(self.matriz[0]) 
     
-    # param: Int, Boolean, Boolean, Boolean ->  Int
+    # param: Int, Int -> Boolean
     # Verifica si a posicion no pasa por un  fuego sin agua
     def verificar_fuego(self, x,y):
         if self.matriz[x][y] == 2 and  self.hidrante == False:
             return False
         else:
             return True
+
+    # param: Int, Boolean, Boolean, Boolean ->  Int
+    # Calcula ell costo de acuerdo a las reglas del juego
+    def calculo_costo(self, costo, cubeta1, cubeta2, hidrante, fuego_restante):
+        if (cubeta1 and hidrante) or (cubeta2 and hidrante and fuego_restante==1):
+            return costo + 2
+        if cubeta2 and hidrante:
+            return costo + 3
+        else:
+            return costo + 1
+        
 
     # param: self.Object ->  List<Object>
     # Retorna los  nodos con los posibles Movimientos
@@ -107,12 +116,6 @@ class Nodo:
                 if self.nodo_padre is None:
                     nueva_matriz[self.posicion[0]][self.posicion[1]] = 0
 
-                
-                #elif self.nodo_padre.matriz[self.posicion[0]][self.posicion[1]] == 2 and  self.hidrante==True:
-                 #  nueva_matriz[self.posicion[0]][self.posicion[1]] = 0
-
-                #elif self.nodo_padre.matriz[self.posicion[0]][self.posicion[1]] == 2 and  self.hidrante==False:
-                 #  nueva_matriz[self.posicion[0]][self.posicion[1]] = 2
             
                 elif self.matriz[x][y] == 2 and self.cubeta1 and self.hidrante==True:
                     nueva_matriz[self.posicion[0]][self.posicion[1]] = 0
@@ -137,11 +140,25 @@ class Nodo:
                     self.paso_cubeta1(x,y),
                     self.paso_cubeta2(x,y),
                     hidrante,
+                    self.calculo_costo(self.costo, self.paso_cubeta1, self.paso_cubeta2, hidrante, self.paso_fuego(x,y))
                 )
                 movimientos.append(nuevo_nodo)
 
         return movimientos
     
+
+# Imprime matriz
+def print_matriz(matriz):
+    for fila in matriz:
+            print(fila)
+        
+
+# Imprime los posibles movimientos  
+def print_movimientos(movimientos_posibles):
+    for movimiento in movimientos_posibles:
+        for fila in movimiento.matriz:
+            print(fila)
+        print("")
 
 
 
@@ -155,8 +172,7 @@ def find_agent(matriz):
 
 
 
-
-def busqueda_preferente_por_amplitud(matriz):
+def busqueda_de_costo_uniforme(matriz):
 
     x =1
     initial_position = find_agent(matriz)
@@ -173,7 +189,8 @@ def busqueda_preferente_por_amplitud(matriz):
         if not queue:
             return "no, te falla", 
         
-        current_node = queue.pop(0)
+        current_node =  min(queue, key=lambda x: x.costo)
+        queue.remove(current_node)
         #print("nodo a expandir")
         #print_matriz(current_node.matriz)
 
@@ -193,7 +210,7 @@ def busqueda_preferente_por_amplitud(matriz):
         #queue = aplanar_lista(queue)
         x= x+1
 
-    return "no hay meta -- se pierde en bucles entonces nunca accede ea esto"
+    return "no hay meta"
 
 
 # Ejemplo de uso:
@@ -230,18 +247,29 @@ matriz2 = [
 ]
 
 
+
 """
-result = busqueda_preferente_por_amplitud(matriz2)
+initial_position = find_agent(matriz1)
+queue = []
+queue.append(Nodo(matriz1, initial_position, None))
+queue.append(Nodo(matriz1, initial_position, None))
+
+current_node =  min(queue, key=lambda x: x.costo)
+queue.remove(current_node)
+
+print_movimientos(queue)
+
+
+
+
+result = busqueda_de_costo_uniforme(matriz2)
 print(result)
 
 path = imprimir_camino(result)
 
-for matriz in yeison:
+for matriz in path:
     print_matriz(matriz)
     print("--")
-
-
-
 
 
 

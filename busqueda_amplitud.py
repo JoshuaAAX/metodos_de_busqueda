@@ -273,18 +273,18 @@ def imprimir_camino(resultado):
 
 
 
-"""
+
 result = busqueda_preferente_por_amplitud(matriz2)
 print(result)
 
 path = imprimir_camino(result)
 
-for matriz in yeison:
+for matriz in path:
     print_matriz(matriz)
     print("--")
 
 
-
+"""
 
 
 

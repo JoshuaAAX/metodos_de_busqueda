@@ -4,6 +4,7 @@ from typing import List, Annotated
 
 
 import Amplitud 
+import Costo
 
 app = FastAPI()
 
@@ -59,7 +60,8 @@ async def upload_file(file: UploadFile = File(...)):
     matrix = read_matrix(content)
 
 
-    result = Amplitud.busqueda_preferente_por_amplitud(matrix)
+    #result = Amplitud.busqueda_preferente_por_amplitud(matrix)
+    result = Costo.busqueda_de_costo_uniforme(matrix)
 
     response = find_path(result)
 

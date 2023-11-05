@@ -2,6 +2,9 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Annotated
 
+from datetime import datetime
+import time
+
 
 import amplitud 
 import costo
@@ -31,7 +34,7 @@ def read_matrix(content):
     
     return matrix
 
-# Imprime el camino según el resultado de la busqueda
+# Retorna el camino según el resultado de la busqueda
 def find_path(result):
     response = result[0]
     node = result[1]
@@ -45,10 +48,41 @@ def find_path(result):
         path.reverse()
 
         return path
-    else:
-        return response
+   
+    return response
     
+# Retorna la profundida del nodo donde se encuentra la meta
+def find_depth(result):
+    response = result[0]
+    node = result[1]
 
+    if response=="no te falla":
+        return node.profundidad
+    
+    return response
+
+
+# Retorna la cantidad de nodos expandidos para hallar la meta
+def find_nodes(result):
+    response = result[0]
+    node = result[1]
+    count_node = result[2]
+
+    if response=="no te falla":
+        return count_node
+    
+    return response
+
+# Retorna la cantidad de nodos expandidos para hallar la meta
+def find_cost(result):
+    response = result[0]
+    node = result[1]
+    count_node = result[2]
+
+    if hasattr(node,"costo"):
+        return str(node.costo)
+    
+    return "null"
 
 @app.get("/")
 async def read_root():
@@ -60,17 +94,26 @@ async def upload_file(file: UploadFile = File(...)):
     content = await file.read()
     matrix = read_matrix(content)
 
+    start_time = datetime.now()
 
     #result = amplitud.busqueda_preferente_por_amplitud(matrix)
-    #result = costo.busqueda_de_costo_uniforme(matrix)
-    result = profundidad.busqueda_preferente_por_profundidad(matrix)
+    result = costo.busqueda_de_costo_uniforme(matrix)
+    #result = profundidad.busqueda_preferente_por_profundidad(matrix)
+
+    end_time = datetime.now()
+
 
     response = find_path(result)
-
     arrays_response = [{"matrix": matrix} for matrix in response]
+    nodes = find_nodes(result)
+    depth = find_depth(result)
+    time = end_time - start_time
+    cost = find_cost(result)
+   
+
 
     
-    return {"filename": file.filename, "arrays": arrays_response}
+    return {"filename": file.filename, "arrays": arrays_response, "nodes": nodes, "depth": depth, "time": time, "cost": cost}
 
 
 

@@ -186,7 +186,7 @@ def busqueda_preferente_por_profundidad(matriz):
 
     x =1
     initial_position = find_agent(matriz)
-    goals = find_goals(matriz)
+    count_nodes = 0
 
     stack = []
     stack.append(Nodo(matriz, initial_position, None))
@@ -205,12 +205,13 @@ def busqueda_preferente_por_profundidad(matriz):
         #print_matriz(current_node.matriz)
 
         if current_node.esMeta():
-            return ["no te falla", current_node]
+            return ["no te falla", current_node, count_nodes]
         
         children = current_node.expandir()
 
         for child in children:
             stack.append(child)
+            count_nodes += 1
 
         #print("cola despues de expansion")
         #print_movimientos(queue)

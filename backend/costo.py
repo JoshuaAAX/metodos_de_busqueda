@@ -178,6 +178,7 @@ def busqueda_de_costo_uniforme(matriz):
 
     x =1
     initial_position = find_agent(matriz)
+    count_nodes = 0
 
     queue = []
     queue.append(Nodo(matriz, initial_position, None))
@@ -197,12 +198,13 @@ def busqueda_de_costo_uniforme(matriz):
         #print_matriz(current_node.matriz)
 
         if current_node.esMeta():
-            return ["no te falla", current_node]
+            return ["no te falla", current_node, count_nodes]
         
         children = current_node.expandir()
 
         for child in children:
             queue.append(child)
+            count_nodes += 1
 
         #print("cola despues de expansion")
         #print_movimientos(queue)

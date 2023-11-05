@@ -6,9 +6,17 @@ import {
   Button,  
   VStack, 
   Heading,
-  Input
+  Input,
+  HStack,
+  Select,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuGroup,
+  MenuItem,
+  List,
+  ListItem
 } from '@chakra-ui/react'
-
 
 
 import { FiUpload } from 'react-icons/fi';
@@ -32,7 +40,12 @@ function App() {
   const [selectedFile, setSelectedFile] = useState([]);
   const [map, setMap] = useState(matrix);
   const [clickRun, setClickRun] = useState(false);
-  const [miValor, setMiValor] = useState('');
+ 
+  //Estadisticas
+  const [nodos, setNodos] = useState(0);
+  const [profundidad, setProfundidad] = useState(0);
+  const [tiempo, setTiempo] = useState(0);
+  const [costo, setCosto] = useState("0");
   
  
   function handleClickRun() {
@@ -103,7 +116,11 @@ function App() {
          
          //setMap(data.arrays[1].matrix);
         //console.log(data.arrays[0].matrix)
-         setSelectedFile(data.arrays)
+         setSelectedFile(data.arrays);
+         setNodos(data.nodes);
+         setProfundidad(data.depth);
+         setTiempo(data.time);
+         setCosto(data.cost)
 
       })
 
@@ -119,29 +136,42 @@ function App() {
   }
 
   
-
+  
 
   return (
       <Center h='100%'>
       <VStack gap={5}>  
+    
+         <Heading  color='black'>Algoritmos de Busqueda</Heading>
 
-        <Heading  color='black'>Algoritmos de Busqueda</Heading>
-
-
-        <Input 
+         <HStack spacing={2}>
+         <Input 
           display='none'
           type='file'
           accept='.txt'
           ref={fileInputRef}
           onChange={handleFileSelected} />
   
-       <Button 
+        <Button 
           type='file' 
           rightIcon={<Icon as={FiUpload}/>} 
           colorScheme='blue'
           onClick={handleFileButton}>
             Upload
-       </Button>
+        </Button>
+       
+        
+        </HStack>    
+
+        
+      
+
+        <HStack spacing={7}>
+          <Box borderRadius='md' bg='purple.300' color='white' px={2} py={1}>Nodos: {nodos} </Box>
+          <Box borderRadius='md' bg='purple.300' color='white'px={2} py={1}>Profundidad: {profundidad}</Box>
+          <Box borderRadius='md' bg='purple.300' color='white'px={2} py={1}>Tiempo:  {tiempo}</Box>
+          <Box borderRadius='md' bg='purple.300' color='white'px={2} py={1}>Costo:  {costo}</Box>
+        </HStack>
         
       
         <BoxGrid matriz={map} />
@@ -153,7 +183,7 @@ function App() {
             Start
         </Button>
 
-        <Box><Text color={'black'}>{miValor}</Text></Box>
+     
 
       </VStack>
       </Center>

@@ -160,9 +160,7 @@ def avara(matriz_mundo):
                 nodos_creados += 1
                 if movimientos_resultantes[1] not in nodos_visitados:
                     cola.append(hijo)
-                    hijo.recorrido.append((xi, yi))
-                    
-                    
+                    hijo.recorrido.append((xi, yi))                 
                     
     return "No hay solución", nodos_creados, nodos_expandidos, nodo.profundidad
 
@@ -203,4 +201,5 @@ def busqueda_informada_avara(matriz):
             lista_matrices_camino.append(matrix.copy())
             matrix[y][x] = 0
 
-    return lista_matrices_camino, nodos_expandidos, profundidad
+    matrices_camino = [matriz.tolist() for matriz in lista_matrices_camino]
+    return matrices_camino, nodos_expandidos, profundidad

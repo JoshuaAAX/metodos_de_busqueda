@@ -9,6 +9,7 @@ import time
 import amplitud 
 import costo
 import  profundidad
+import avara
 
 app = FastAPI()
 
@@ -93,35 +94,33 @@ async def upload_file(number: int, file: UploadFile = File(...)):
     
     content = await file.read()
     matrix = read_matrix(content)
-
+    result2 = None
+    
     start_time = datetime.now()
      
     if number == 1:
         result = amplitud.busqueda_preferente_por_amplitud(matrix)
     elif number == 2:
         result = costo.busqueda_de_costo_uniforme(matrix)
-    else:
+    elif number == 3:
         result =  profundidad.busqueda_preferente_por_profundidad(matrix)
-    #result = amplitud.busqueda_preferente_por_amplitud(matrix)
-    #result = costo.busqueda_de_costo_uniforme(matrix)
-    #result = profundidad.busqueda_preferente_por_profundidad(matrix)
+    elif number == 4:
+        print("4444444444")
+        result2 = avara.busqueda_informada_avara(matrix)
 
     end_time = datetime.now()
-
-
-    response = find_path(result)
-    arrays_response = [{"matrix": matrix} for matrix in response]
-    nodes = find_nodes(result)
-    depth = find_depth(result)
     time = end_time - start_time
-    cost = find_cost(result)
+
+    if result2 != None:
+        arrays_response = [{"matrix": matrix} for matrix in result2[0]]
+        nodes = result2[1]
+        depth = result2[2]
+        cost = None
+    else:
+        response = find_path(result)
+        arrays_response = [{"matrix": matrix} for matrix in response]
+        nodes = find_nodes(result)
+        depth = find_depth(result)
+        cost = find_cost(result)
    
-
-
-    
     return {"filename": file.filename, "arrays": arrays_response, "nodes": nodes, "depth": depth, "time": time, "cost": cost}
-
-
-
-
-

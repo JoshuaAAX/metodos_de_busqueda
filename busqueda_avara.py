@@ -90,7 +90,7 @@ def estudiar_movimientos(xi, yi, copiaEstadoAgente, copiaMatriz, matriz, heurist
 
     #encuentra un hidratante y lleva cubeta de 2 lts
     if(matriz[yi, xi] == 6 and estado_agente[4] == "2l"):
-        estado_agente[5] = 2        
+        estado_agente[5] = 2     
 
     estado_agente[0] = ((xi, yi))
     nuevo_estado = nueva_matriz, estado_agente, heuristica
@@ -116,6 +116,7 @@ def avara(matriz_mundo):
                 pos_hidratante = (j, i)
             if matriz_mundo[i][j] == 5: #posición agente
                 pos_agente = (j, i)
+                matriz_mundo[i][j] = 0
 
     '''ESTADO'''
     estado_agente = [pos_agente, puntos_de_fuego, pos_cubetas, pos_hidratante, "sin cubeta", 0] #0 lts de agua
@@ -123,20 +124,22 @@ def avara(matriz_mundo):
     raiz = Nodo(matriz_mundo, estado_agente, [pos_agente], [[pos_agente]], 0, 0, 0)
     cola = [raiz]
     nodos_visitados = []
-
+    
     while len(cola) > 0:
         nodo = min(cola, key=lambda x: x.heuristica)
         cola.remove(nodo)
         nodos_visitados.append(nodo.estado_agente)
         nodos_expandidos += 1
-        
+
+        #print(nodo.matriz)
+    
         if nodo.esMeta():
-            solucion = nodo.recorrido, nodos_expandidos, nodo.profundidad, nodo.matriz
-            return solucion
+            solucion = nodo.recorrido, nodos_expandidos, nodo.profundidad, matriz_mundo, nodo.estado_agente
+            return solucion  
 
         x = nodo.estado_agente[0][0]
         y = nodo.estado_agente[0][1]
-
+        
         # Generar hijos
         movimientos = [(-1, 0), (1, 0), (0, -1), (0, 1)] 
         for movimiento in movimientos:
@@ -159,19 +162,59 @@ def avara(matriz_mundo):
                     cola.append(hijo)
                     hijo.recorrido.append((xi, yi))
                     
-
+                    
+                    
     return "No hay solución", nodos_creados, nodos_expandidos, nodo.profundidad
+
 
 with open("prueba1.txt", "r") as ambiente_inicial:
     lineas = ambiente_inicial.readlines()
     matriz = np.array([list(map(int, linea.strip().split()))
                         for linea in lineas])
 
-solucion, nodos_expandidos, profundidad, matriz_fin = avara(matriz)
-print(matriz)
+
+solucion, nodos_expandidos, profundidad, matriz_fin, estado_fin = avara(matriz)
+print("matriz inicial:\n", matriz)
 print("Solución:", solucion)
 print("Nodos expandidos:", nodos_expandidos)
 print("profundidad:", profundidad)
 print("Matriz:")
 for line in matriz_fin:
     print(line)
+
+
+lista_matrices_camino = []
+matrix = matriz_fin.copy()
+matriz_aux = matriz_fin.copy()
+bandera = False
+for step in solucion:
+    x, y = step
+    if matriz_fin[y][x] == 4 and "2l" == estado_fin[4]:
+        print("entro aqui")
+        matrix[y][x] = 5
+        lista_matrices_camino.append(matrix.copy())
+        matrix[y][x] = 0
+    elif matriz_fin[y][x] == 3 and "1l" == estado_fin[4]:
+        print("entro aca")
+        matrix[y][x] = 5
+        lista_matrices_camino.append(matrix.copy())
+        matrix[y][x] = 0
+    elif matriz_fin[y][x] == 6:
+        matrix[y][x] = 5
+        lista_matrices_camino.append(matrix.copy())
+        matrix[y][x] = 6
+    elif matriz_fin[y][x] == 3 and estado_fin[4] != "1l":
+        matrix[y][x] = 5
+        lista_matrices_camino.append(matrix.copy())
+        matrix[y][x] = 3
+    elif matriz_fin[y][x] == 4 and estado_fin[4] != "2l":
+        matrix[y][x] = 5
+        lista_matrices_camino.append(matrix.copy())
+        matrix[y][x] = 4       
+    else:
+        matrix[y][x] = 5
+        lista_matrices_camino.append(matrix.copy())
+        matrix[y][x] = 0
+    
+for matrix in lista_matrices_camino:
+    print(matrix)

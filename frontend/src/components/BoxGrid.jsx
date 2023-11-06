@@ -23,7 +23,7 @@ import PropTypes from 'prop-types';
     };
   
     return (
-
+    
     <SimpleGrid 
       columns={matriz[0].length} 
       spacing={spacingSize} 
@@ -40,6 +40,7 @@ import PropTypes from 'prop-types';
             ))))}
 
     </SimpleGrid>  
+    
   
     )
   }

@@ -88,16 +88,22 @@ def find_cost(result):
 async def read_root():
     return {"Hello": "World"}
 
-@app.post("/uploadfile")
-async def upload_file(file: UploadFile = File(...)):
+@app.post("/uploadfile/{number}")
+async def upload_file(number: int, file: UploadFile = File(...)):
     
     content = await file.read()
     matrix = read_matrix(content)
 
     start_time = datetime.now()
-
+     
+    if number == 1:
+        result = amplitud.busqueda_preferente_por_amplitud(matrix)
+    elif number == 2:
+        result = costo.busqueda_de_costo_uniforme(matrix)
+    else:
+        result =  profundidad.busqueda_preferente_por_profundidad(matrix)
     #result = amplitud.busqueda_preferente_por_amplitud(matrix)
-    result = costo.busqueda_de_costo_uniforme(matrix)
+    #result = costo.busqueda_de_costo_uniforme(matrix)
     #result = profundidad.busqueda_preferente_por_profundidad(matrix)
 
     end_time = datetime.now()

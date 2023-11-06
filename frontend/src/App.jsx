@@ -15,7 +15,10 @@ import {
   MenuGroup,
   MenuItem,
   List,
-  ListItem
+  ListItem,
+  Card,
+  CardBody,
+  Spacer
 } from '@chakra-ui/react'
 
 
@@ -36,8 +39,8 @@ function App() {
                    [0,1,0],
                    [3,0,0]];
  
-
-  const [selectedFile, setSelectedFile] = useState([]);
+  
+  const [selectedFile, setSelectedFile] = useState(null);
   const [map, setMap] = useState(matrix);
   const [clickRun, setClickRun] = useState(false);
  
@@ -46,11 +49,18 @@ function App() {
   const [profundidad, setProfundidad] = useState(0);
   const [tiempo, setTiempo] = useState(0);
   const [costo, setCosto] = useState("0");
+
+  //valor del algoritmo
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState(0);
   
  
   function handleClickRun() {
     setClickRun(true);
-    
+  }
+
+  // Actualiza el estado con el valor seleccionado del Select
+  function handleSelect(event) {
+    setSelectedAlgorithm(parseInt(event.target.value)); 
   }
 
   useEffect(()  => {
@@ -89,8 +99,10 @@ function App() {
 
     reader.onload = function(event) {
         const content = event.target.result;
-        const lines = content.trim().split(/\n/).map(row => row.split(/\s/))
-        const matriz = lines.map(row => row.map(bit => parseInt(bit)));
+        const lines = content.replace(/\r/g, '').trim().split(/\n/)
+        console.log(lines)
+        const matriz = lines.map(row => row.split(" ").map(number => parseInt(number)));
+        
 
         setMap(matriz)
         console.log(matriz);
@@ -105,7 +117,7 @@ function App() {
       const formData = new FormData
       formData.append("file", file)
 
-      fetch('http://localhost:8000/uploadfile', {
+      fetch(`http://localhost:8000/uploadfile/${selectedAlgorithm}`, {
         method: 'POST',
         body: formData,
       })
@@ -141,49 +153,77 @@ function App() {
   return (
       <Center h='100%'>
       <VStack gap={5}>  
-    
-         <Heading  color='black'>Algoritmos de Busqueda</Heading>
-
-         <HStack spacing={2}>
-         <Input 
-          display='none'
-          type='file'
-          accept='.txt'
-          ref={fileInputRef}
-          onChange={handleFileSelected} />
-  
-        <Button 
-          type='file' 
-          rightIcon={<Icon as={FiUpload}/>} 
-          colorScheme='blue'
-          onClick={handleFileButton}>
-            Upload
-        </Button>
-       
         
-        </HStack>    
+        <Card bg='purple.200' w='100%' >
+         <CardBody textAlign='center'>
+           <Heading  color='white'>Algoritmos de Busqueda</Heading>
+         </CardBody>
+        </Card> 
 
+
+        <Card bg='blue.200' w='100%' >
+          <CardBody>
+            <HStack spacing={2}>
+                
+                <Select 
+                  variant='filled' 
+                  placeholder='Seleccione un algoritmo primero' 
+                  value={selectedAlgorithm} 
+                  onChange={handleSelect}>
+                  <option value='' disabled>Busqueda no informada</option>
+                  <option value={1}>Preferente por Amplitud</option>
+                  <option value={2}>Costo uniforme</option>
+                  <option value={3}>Preferente por Profundidad</option>
+                  <option value='' disabled>Busqueda informada</option>
+                  <option value={4}>Avara</option>
+                  <option value={5}>A*</option>
+                </Select>
+
+                <Input 
+                  display='none'
+                  type='file'
+                  accept='.txt'
+                  ref={fileInputRef}
+                  onChange={handleFileSelected} />
+          
+                <Button 
+                  px = {6}
+                  type='file' 
+                  rightIcon={<Icon as={FiUpload}/>} 
+                  colorScheme='blue'
+                  onClick={handleFileButton}
+                  isDisabled={!selectedAlgorithm}>
+                    Upload
+                </Button>
+
+            </HStack>  
+          </CardBody>
+        </Card>  
+
+        <Center><BoxGrid matriz={map} /></Center>
         
-      
 
-        <HStack spacing={7}>
-          <Box borderRadius='md' bg='purple.300' color='white' px={2} py={1}>Nodos: {nodos} </Box>
-          <Box borderRadius='md' bg='purple.300' color='white'px={2} py={1}>Profundidad: {profundidad}</Box>
-          <Box borderRadius='md' bg='purple.300' color='white'px={2} py={1}>Tiempo:  {tiempo}</Box>
-          <Box borderRadius='md' bg='purple.300' color='white'px={2} py={1}>Costo:  {costo}</Box>
-        </HStack>
-        
-      
-        <BoxGrid matriz={map} />
-
-        <Button  
-          rightIcon={<Icon as = {FaPlay} />}
-          colorScheme='whatsapp'
-          onClick={handleClickRun}>
-            Start
-        </Button>
-
-     
+        <Card bg='blue.100' w='100%'  >
+          <CardBody>
+            <HStack spacing={7} mb={4}>
+              <Box borderRadius='md' bg='purple.300' color='white' px={2} py={1}>Nodos: {nodos} </Box>
+              <Box borderRadius='md' bg='purple.300' color='white'px={2} py={1}>Profundidad: {profundidad}</Box>
+              <Box borderRadius='md' bg='purple.300' color='white'px={2} py={1}>Tiempo:  {tiempo}</Box>
+              <Box borderRadius='md' bg='purple.300' color='white'px={2} py={1}>Costo:  {costo}</Box>
+            </HStack>
+            
+           
+          
+            <Button  
+              w='100%'
+              rightIcon={<Icon as = {FaPlay} />}
+              colorScheme='whatsapp'
+              onClick={handleClickRun}
+              isDisabled={!selectedFile}>
+                Start
+            </Button>
+          </CardBody>
+        </Card>
 
       </VStack>
       </Center>

@@ -30,11 +30,19 @@ class Nodo:
             pos_fuego1 = self.estado_agente[1][0]
             pos_fuego2 = self.estado_agente[1][1]
             dis_entre_fuegos = self.distancia_manhattan(pos_fuego1[0], pos_fuego1[1], pos_fuego2[0], pos_fuego2[1])
+            
+            dis_agt_fuegos = []
+            for fuego in self.estado_agente[1]:
+                dis_agt_fuegos.append(self.distancia_manhattan(self.estado_agente[0][0], self.estado_agente[0][1], fuego[0], fuego[1]))
+            dis_apagar_fuego = min(dis_agt_fuegos[0], dis_agt_fuegos[1])
+
         else:
             dis_entre_fuegos = 0
+            pos_ultimo_fuego = self.estado_agente[1][0]
+            dis_apagar_fuego = self.distancia_manhattan(self.estado_agente[0][0], self.estado_agente[0][1], pos_ultimo_fuego[0], pos_ultimo_fuego[1])
 
         #distancia desde el agente a cada una de las cubetas, elegir mas cercana
-        if(self.estado_agente[5] == "sin cubeta"):
+        if(self.estado_agente[4] == "sin cubeta"):
             dis_a_cubetas = []
             for cubeta in self.estado_agente[2]:
                 dis_a_cubetas.append(self.distancia_manhattan(self.estado_agente[0][0], self.estado_agente[0][1], cubeta[0], cubeta[1]))
@@ -42,20 +50,14 @@ class Nodo:
         else:
             dis_tomar_cub = 0
 
-        #distancia desde el agente a cada uno de los fuegos. si hay dos -> distancia al más cercano, sino -> distancia al fuego final
-        if(len(self.estado_agente[1]) == 2):
-            #print(self.estado_agente[1])
-            dis_a_fuegos = []
-            for fuego in self.estado_agente[1]:
-                dis_a_fuegos.append(self.distancia_manhattan(self.estado_agente[0][0], self.estado_agente[0][1], fuego[0], fuego[1]))
-            dis_apagar_fuego = min(dis_a_fuegos[0], dis_a_fuegos[1])
+        #distancia cuando no tiene agua
+        if(self.estado_agente[5] == 0):
+            dis_a_hid = self.distancia_manhattan(self.estado_agente[0][0], self.estado_agente[0][1], self.estado_agente[3][0], self.estado_agente[3][1])
         else:
-            #print(self.estado_agente[1])
-            pos_ultimo_fuego = self.estado_agente[1][0]
-            dis_apagar_fuego = self.distancia_manhattan(self.estado_agente[0][0], self.estado_agente[0][1], pos_ultimo_fuego[0], pos_ultimo_fuego[1])
+            dis_a_hid = 0
         
-        self.heuristica = dis_entre_fuegos + dis_tomar_cub + dis_apagar_fuego
-        return self.heuristica              
+        self.heuristica = dis_tomar_cub + dis_a_hid + dis_apagar_fuego + dis_entre_fuegos
+        return self.heuristica
         
 
 # Función para verificar movimientos y generar hijos
@@ -127,7 +129,7 @@ def avara(matriz_mundo):
         cola.remove(nodo)
         nodos_visitados.append(nodo.estado_agente)
         nodos_expandidos += 1
-        
+        print(nodo.estado_agente)
         if nodo.esMeta():
             solucion = nodo.recorrido, nodos_expandidos, nodo.profundidad, nodo.matriz
             return solucion
@@ -144,18 +146,19 @@ def avara(matriz_mundo):
             if 0 <= xi < matriz_mundo.shape[1] and 0 <= yi < matriz_mundo.shape[0] and matriz_mundo[yi][xi] != 1:
                 movimientos_resultantes = estudiar_movimientos(xi, yi, nodo.estado_agente.copy(), nodo.matriz.copy(), nodo.matriz, nodo.definir_heuristica())
                 hijo = Nodo(
-                    movimientos_resultantes[0],
-                    movimientos_resultantes[1],
+                    movimientos_resultantes[0], #nueva_matriz
+                    movimientos_resultantes[1], #estado_agente
                     nodo.recorrido.copy(),
                     nodos_visitados,
                     nodo.profundidad + 1,
                     nodo.costo + 1,
-                    movimientos_resultantes[2]
+                    movimientos_resultantes[2] #heuristica
                 )
                 nodos_creados += 1
                 if movimientos_resultantes[1] not in nodos_visitados:
                     cola.append(hijo)
                     hijo.recorrido.append((xi, yi))
+                    
 
     return "No hay solución", nodos_creados, nodos_expandidos, nodo.profundidad
 

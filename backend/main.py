@@ -8,8 +8,9 @@ import time
 
 import amplitud 
 import costo
-import  profundidad
+import profundidad
 import avara
+import estrella
 
 app = FastAPI()
 
@@ -98,15 +99,24 @@ async def upload_file(number: int, file: UploadFile = File(...)):
     
     start_time = datetime.now()
      
-    if number == 1:
+    if   number == 1:
         result = amplitud.busqueda_preferente_por_amplitud(matrix)
+
     elif number == 2:
         result = costo.busqueda_de_costo_uniforme(matrix)
+
     elif number == 3:
         result =  profundidad.busqueda_preferente_por_profundidad(matrix)
+
     elif number == 4:
         print("4444444444")
         result2 = avara.busqueda_informada_avara(matrix)
+    
+    elif number == 5:
+        result =  estrella.busqueda_a_estrella(matrix)
+
+    else:
+        resp = "no eligio algoritmo"
 
     end_time = datetime.now()
     time = end_time - start_time
@@ -115,7 +125,7 @@ async def upload_file(number: int, file: UploadFile = File(...)):
         arrays_response = [{"matrix": matrix} for matrix in result2[0]]
         nodes = result2[1]
         depth = result2[2]
-        cost = None
+        cost = "null"
     else:
         response = find_path(result)
         arrays_response = [{"matrix": matrix} for matrix in response]
@@ -124,3 +134,8 @@ async def upload_file(number: int, file: UploadFile = File(...)):
         cost = find_cost(result)
    
     return {"filename": file.filename, "arrays": arrays_response, "nodes": nodes, "depth": depth, "time": time, "cost": cost}
+
+
+
+
+

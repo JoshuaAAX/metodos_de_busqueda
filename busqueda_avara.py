@@ -129,7 +129,7 @@ def avara(matriz_mundo):
         cola.remove(nodo)
         nodos_visitados.append(nodo.estado_agente)
         nodos_expandidos += 1
-        print(nodo.estado_agente)
+        
         if nodo.esMeta():
             solucion = nodo.recorrido, nodos_expandidos, nodo.profundidad, nodo.matriz
             return solucion

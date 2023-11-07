@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+
+  frontend-ia:
+    build: ./frontend
+    container_name: frontend-ia
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend-ia
+  
+  backend-ia:
+    build: ./backend
+    container_name: backend-ia
+    ports:
+      - "8000:8000"

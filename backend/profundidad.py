@@ -213,10 +213,11 @@ def busqueda_preferente_por_profundidad(matriz):
             return ["no te falla", current_node, count_nodes]
         
         children = current_node.expandir()
+        count_nodes += 1
 
         for child in children:
             stack.append(child)
-            count_nodes += 1
+            
 
         #print("cola despues de expansion")
         #print_movimientos(queue)

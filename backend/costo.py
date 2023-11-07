@@ -201,10 +201,11 @@ def busqueda_de_costo_uniforme(matriz):
             return ["no te falla", current_node, count_nodes]
         
         children = current_node.expandir()
+        count_nodes += 1
 
         for child in children:
             queue.append(child)
-            count_nodes += 1
+            
 
         #print("cola despues de expansion")
         #print_movimientos(queue)

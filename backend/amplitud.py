@@ -104,13 +104,6 @@ class Nodo:
                 if self.nodo_padre is None:
                     nueva_matriz[self.posicion[0]][self.posicion[1]] = 0
 
-                
-                #elif self.nodo_padre.matriz[self.posicion[0]][self.posicion[1]] == 2 and  self.hidrante==True:
-                 #  nueva_matriz[self.posicion[0]][self.posicion[1]] = 0
-
-                #elif self.nodo_padre.matriz[self.posicion[0]][self.posicion[1]] == 2 and  self.hidrante==False:
-                 #  nueva_matriz[self.posicion[0]][self.posicion[1]] = 2
-            
                 elif self.matriz[x][y] == 2 and self.cubeta1 and self.hidrante==True:
                     nueva_matriz[self.posicion[0]][self.posicion[1]] = 0
                     hidrante = False
@@ -178,10 +171,11 @@ def busqueda_preferente_por_amplitud(matriz):
             return ["no te falla", current_node, count_nodes]
         
         children = current_node.expandir()
+        count_nodes += 1
 
         for child in children:
             queue.append(child)
-            count_nodes += 1
+            
 
         #print("cola despues de expansion")
         #print_movimientos(queue)

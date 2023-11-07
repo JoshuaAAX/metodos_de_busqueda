@@ -25,5 +25,8 @@ cd metodos_de_busqueda
 docker compose up
 ```
 
+## Abrir en el navegador
+- localhost:3000
+
 ## Captura de pantalla
 ![interface de la aplicación](/ejemplo-ia.png)

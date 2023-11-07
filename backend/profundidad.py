@@ -49,16 +49,17 @@ class Nodo:
 
  
     # Verifica si als propiedades del nodo actual son diferentes al de nodo padre
-    def verificar_padre(self, posicion):
-        if self.nodo_padre:
+    def verificar_padre(self, nodo, posicion):
+        if nodo.nodo_padre:
 
-            return   (posicion != self.nodo_padre.posicion 
-                     or  self.nodo_padre.fuego_restante != self.fuego_restante 
-                     or self.hidrante != self.nodo_padre.hidrante 
-                     or self.cubeta1 != self.nodo_padre.cubeta1 
-                     or self.cubeta2 != self.nodo_padre.cubeta2) and self.nodo_padre.verificar_padre(posicion)
-        
-        return True
+            return  (   posicion != nodo.nodo_padre.posicion 
+                     or nodo.fuego_restante != nodo.nodo_padre.fuego_restante
+                     or nodo.hidrante != self.nodo_padre.hidrante 
+                     or nodo.cubeta1 != self.nodo_padre.cubeta1 
+                     or nodo.cubeta2 != self.nodo_padre.cubeta2) and self.verificar_padre(nodo.nodo_padre, posicion)
+        else:
+            return True
+
     
     # Verifica si la posicion va de acuerdo a los limites de la matriz
     def verificar_limites(self, x, y):
@@ -76,7 +77,11 @@ class Nodo:
         movimientos = []
 
         # Posibles movimientos: izquierda, derecha, arriba, abajo,
-        movimientos_posibles = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+        #movimientos_posibles = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+        
+        # Posibles movimientos: abajo, arriba, derecha, izquierda -> este es necesario para profundidad
+        movimientos_posibles = [(1, 0), (-1, 0), (0, 1), (0, -1) ]
+
 
         for dx, dy in movimientos_posibles:
 
@@ -85,7 +90,7 @@ class Nodo:
           
 
             # Verificar si el movimiento es válido dentro de la matriz (este en los limites, no sea pared y no sea igual al padre)
-            if self.verificar_limites(x,y) and self.matriz[x][y] != 1 and self.verificar_padre([x,y]) and self.verificar_fuego(x,y):
+            if self.verificar_limites(x,y) and self.matriz[x][y] != 1 and self.verificar_padre(self, [x,y]) and self.verificar_fuego(x,y):
 
                
                 

@@ -99,9 +99,9 @@ function App() {
 
     reader.onload = function(event) {
         const content = event.target.result;
-        const lines = content.replace(/\r/g, '').trim().split(/\n/)
-        console.log(lines)
-        const matriz = lines.map(row => row.split(" ").map(number => parseInt(number)));
+        const lines = content.replace(/\r/g,'').trim().split(/\n/)
+        const trimmedLines = lines.map(line => line.trim());
+        const matriz = trimmedLines.map(row => row.split(" ").map(number => parseInt(number)));
         
 
         setMap(matriz)

@@ -1,5 +1,5 @@
 
-file = "Prueba1.txt"
+file = "prueba4.txt"
 
 with open(file, "r") as archivo:
     lineas = archivo.readlines()

@@ -323,7 +323,7 @@ def busqueda_a_estrella(matriz):
 
         for child in children:
             queue.append(child)
-            count_nodes += 1
+
 
         #print("cola despues de expansion")
         #print_movimientos(queue)

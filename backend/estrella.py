@@ -108,7 +108,7 @@ class Nodo:
         return abs(x1 - x2) + abs(y1 - y2)
 
     
-    def caculo_heuristica(self, cubeta1, cubeta2, hidrante, fuego_restante, x,y):
+    def caculo_heuristica(self, cubeta1, cubeta2, hidrante, fuego_restante, x,y, matriz):
           
         #si ya no hay fuegos
         if fuego_restante == 0:    
@@ -126,7 +126,15 @@ class Nodo:
             dis_apagar_fuego = min(dis_agt_fuegos[0], dis_agt_fuegos[1])
         else:
             dis_entre_fuegos = 0
-            pos_ultimo_fuego = self.posicion_fuegos[0]
+            goals=[]
+
+            for row in  range(len(self.matriz)):
+              for column in range(len(self.matriz)):
+                if self.matriz[row][column]==2:
+                  goals.append([row, column])
+              
+ 
+            pos_ultimo_fuego = goals[0]
             dis_apagar_fuego = self.distancia_manhattan(x, y, pos_ultimo_fuego[0], pos_ultimo_fuego[1])
 
         #distancia desde el agente a cada una de las cubetas, elegir mas cercana
@@ -152,8 +160,8 @@ class Nodo:
 
 
     # calcula la suma entre el costo y la heuristica
-    def calculo_total(self, costo, cubeta1, cubeta2, hidrante, fuego_restante,  x ,y):
-         suma = costo + self.caculo_heuristica(cubeta1, cubeta2, hidrante, fuego_restante, x, y)
+    def calculo_total(self, costo, cubeta1, cubeta2, hidrante, fuego_restante,  x ,y, matriz):
+         suma = costo + self.caculo_heuristica(cubeta1, cubeta2, hidrante, fuego_restante, x, y, matriz)
          return suma
 
 
@@ -207,7 +215,7 @@ class Nodo:
 
                 # Aplica el calculo del costo y costo total a la nueva matriz
                 costo_nodo = self.calculo_costo(self.costo, self.paso_cubeta1, self.paso_cubeta2, hidrante, self.paso_fuego(x,y))
-                costo_total = self.calculo_total(costo_nodo, self.paso_cubeta1, self.paso_cubeta2, hidrante, self.paso_fuego(x,y), x,y)
+                costo_total = self.calculo_total(costo_nodo, self.paso_cubeta1, self.paso_cubeta2, hidrante, self.paso_fuego(x,y), x,y, nueva_matriz)
 
                 # Crea y guarda el nodo hijo en un array
                 nuevo_nodo = Nodo(
